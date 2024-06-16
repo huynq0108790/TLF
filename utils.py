@@ -1,4 +1,8 @@
 import datetime
+import os
+
+if "ACCEPT_TC" not in os.environ:
+    os.environ["ACCEPT_TC"] = "tôi đồng ý"
 from vnstock3 import Vnstock
 
 def get_latest_price(symbol):
