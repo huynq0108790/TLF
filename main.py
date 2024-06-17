@@ -11,7 +11,7 @@ if "ACCEPT_TC" not in os.environ:
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgre:gWRSMQ18BiaF89X6TpE7b5fQ86etCQ5k@dpg-cpo0086ehbks738etiu0-a/stockpg'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.secret_key = 'supersecretkey'  # Thêm khóa bí mật để sử dụng flash messagess
+app.secret_key = 'supersecretkey'  # Thêm khóa bí mật để sử dụng flash messages
 
 db = SQLAlchemy(app)
 
