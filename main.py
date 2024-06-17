@@ -9,7 +9,7 @@ if "ACCEPT_TC" not in os.environ:
     os.environ["ACCEPT_TC"] = "tôi đồng ý"
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///stock_1.db"
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://huynq01087:huynq123456@hostname:5432/stockpg'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'supersecretkey'  # Thêm khóa bí mật để sử dụng flash messages
 
