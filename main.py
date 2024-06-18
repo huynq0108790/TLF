@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
-from config import Configdb
 from utils import get_latest_price, check_stock_info  # Import các hàm từ utils.py
 
 app = Flask(__name__)
