@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from utils import get_latest_price, check_stock_info  # Import các hàm từ utils.py
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgre:gWRSMQ18BiaF89X6TpE7b5fQ86etCQ5k@dpg-cpo0086ehbks738etiu0-a.5432/stockpg'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgre:gWRSMQ18BiaF89X6TpE7b5fQ86etCQ5k@dpg-cpo0086ehbks738etiu0-a.oregon-postgres.render.com/stockpg'
 #internal db postgres://postgre:gWRSMQ18BiaF89X6TpE7b5fQ86etCQ5k@dpg-cpo0086ehbks738etiu0-a/stockpg
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'supersecretkey'  # Thêm khóa bí mật để sử dụng flash messages
