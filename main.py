@@ -6,6 +6,8 @@ from models import db, User, Stock
 from datetime import datetime
 from dotenv import load_dotenv
 import os
+if "ACCEPT_TC" not in os.environ:
+    os.environ["ACCEPT_TC"] = "tôi đồng ý"
 
 load_dotenv()
 
