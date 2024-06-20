@@ -1,37 +1,50 @@
-{% extends 'base.html' %}
-
+{% extends "layout.html" %}
+{% block title %}Stock Management{% endblock %}
 {% block content %}
-<h1 class="text-center mb-4">Stock Management</h1>
-<table class="table table-striped table-hover">
-    <thead class="thead-light">
-        <tr>
-            <th>Symbol</th>
-            <th>Buy Price</th>
-            <th>Latest Price</th>
-            <th>Target 1</th>
-            <th>Target 2</th>
-            <th>Cut Loss</th>
-            <th>Note</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for stock in stocks %}
-        <tr>
-            <td>{{ stock.symbol }}</td>
-            <td>{{ stock.buy_price }}</td>
-            <td>{{ stock.latest_price }}</td>
-            <td>{{ stock.target1 }}</td>
-            <td>{{ stock.target2 }}</td>
-            <td>{{ stock.cut_loss }}</td>
-            <td>{{ stock.note }}</td>
-            <td>
-                <a href="{{ url_for('edit_stock', id=stock.id) }}" class="btn btn-success btn-sm">Edit</a>
-                <a href="{{ url_for('delete_stock', id=stock.id) }}" class="btn btn-danger btn-sm">Delete</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-<a href="{{ url_for('add_stock') }}" class="btn btn-primary">Add New Stock</a>
+    <h1>Stocks</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>Symbol</th>
+                <th>Buy Price</th>
+                <th>Latest Price</th>
+                <th>Profit/Loss (%)</th> <!-- Thêm cột Lãi/Lỗ -->
+                <th>Target 1</th>
+                <th>Target 2</th>
+                <th>Cut Loss</th>
+                <th>Note</th>
+                {% if current_user.is_authenticated and current_user.is_admin %}
+                    <th>Actions</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for stock in stocks %}
+                <tr>
+                    <td>{{ stock.timestamp }}</td>
+                    <td>{{ stock.symbol }}</td>
+                    <td>{{ stock.buy_price }}</td>
+                    <td>{{ stock.latest_price }}</td>
+                    <!--<td>{{ "%.2f" % stock.profit_loss }}%</td>-->
+                    {% if stock.profit_loss < 0 %}
+                    <td style="color:red">{{ "%.2f" % stock.profit_loss }}%</td>
+                    {% endif %}
+                    {% if stock.profit_loss >= 0 %}
+                    <td style="color:green">{{ "%.2f" % stock.profit_loss }}%</td>
+                    {% endif %}
+                    <td>{{ stock.target1 }}</td>
+                    <td>{{ stock.target2 }}</td>
+                    <td>{{ stock.cut_loss }}</td>
+                    <td>{{ stock.note }}</td>
+                    {% if current_user.is_authenticated and current_user.is_admin %}
+                        <td>
+                            <a href="{{ url_for('edit_stock', id=stock.id) }}">Edit</a>
+                            <a href="{{ url_for('delete_stock', id=stock.id) }}">Delete</a>
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}
