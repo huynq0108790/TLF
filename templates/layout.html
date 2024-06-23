@@ -1,43 +1,54 @@
-<!doctype html>
+<!--
+
+=========================================================
+* Volt Free - Bootstrap 5 Dashboard
+=========================================================
+
+* Product Page: https://themesberg.com/product/admin-dashboard/volt-bootstrap-5-dashboard
+* Copyright 2021 Themesberg (https://www.themesberg.com)
+* License (https://themesberg.com/licensing)
+
+* Designed and coded by https://themesberg.com
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. Please contact us to request a removal.
+
+-->
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!-- Primary Meta Tags -->
+
+<title>
+    Trading for living!
+</title>
+
+
+<!-- Favicon -->
+<link rel="apple-touch-icon" sizes="120x120" href="/static/assets/img/favicon/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/static/assets/img/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/static/assets/img/favicon/favicon-16x16.png">
+<link rel="manifest" href="/static/assets/img/favicon/site.webmanifest">
+<link rel="mask-icon" href="/static/assets/img/favicon/safari-pinned-tab.svg" color="#ffffff">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="theme-color" content="#ffffff">
+
+<link type="text/css" href="{{ url_for('static', filename='assets/vendor/sweetalert2/dist/sweetalert2.min.css') }}" rel="stylesheet">
+<link type="text/css" href="{{ url_for('static', filename='assets/vendor/notyf/notyf.min.css') }}" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/css/volt.css') }}">
+<!-- Specific Page JS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
 </head>
 <body>
-    <header>
-        <nav>
-            {% if current_user.is_authenticated %}
-                <span>Welcome, {{ current_user.username }}!</span>
-                <a href="{{ url_for('logout') }}">Logout</a>
-                {% if current_user.is_admin %}
-                    <a href="{{ url_for('add_stock') }}">Add Stock</a>
-                {% endif %}
-            {% else %}
-                <a href="{{ url_for('login') }}">Login</a>
-                <a href="{{ url_for('register') }}">Register</a>
-            {% endif %}
-        </nav>
-    </header>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert  flash {{ category }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-    {% block content %}{% endblock %}
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
-        // Ẩn thông báo sau 5 giây
-        $(document).ready(function() {
-            setTimeout(function() {
-                $(".alert ").alert('close');
-            }, 3000);
-        });
-    </script>
+    {% include 'includes/sidebar.html' %}
+    <main class="content">
+      {% block content %}{% endblock content %}
+    </main>
+  {% include 'includes/scripts.html' %}
+  <!-- Specific Page JS goes HERE  -->
+  {% block javascripts %}{% endblock javascripts %}
 </body>
 </html>

@@ -1,10 +1,14 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_bcrypt import Bcrypt
+from vnstock import stock_intraday_data
 from utils import get_latest_price, check_stock_info  # Import các hàm từ utils.py
 from models import db, User, Stock
 from datetime import datetime
 from dotenv import load_dotenv
+import pandas as pd
+import time
+
 import os
 if "ACCEPT_TC" not in os.environ:
     os.environ["ACCEPT_TC"] = "tôi đồng ý"
@@ -47,7 +51,7 @@ def index():
             'timestamp': timestamp_str
 
         })
-    return render_template('index.html', stocks=stock_data)
+    return render_template('index.html', stocks=stock_data, segment='index')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -114,7 +118,7 @@ def add_stock():
         flash('Cổ phiếu đã được thêm thành công!', 'success')
         return redirect(url_for('index'))
 
-    return render_template('add_stock.html')
+    return render_template('add_stock.html',segment='add_stock')
 
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -148,6 +152,63 @@ def delete_stock(id):
     db.session.commit()
     flash('Cổ phiếu đã được xóa thành công!', 'success')
     return redirect(url_for('index'))
+
+# Route cho trang intraday_data
+@app.route('/intraday_data', methods=['GET', 'POST'])
+def intraday_data():
+    symbol = None
+    if request.method == 'POST':
+        symbol = request.form['symbol']
+        page_size = 5000
+
+        # Gọi hàm stock_intraday_data từ thư viện vnstock
+        start_time = time.time()
+        df = stock_intraday_data(symbol=symbol, page_size=page_size)
+        end_time = time.time()
+        print(f"Data fetch time: {end_time - start_time} seconds")
+
+        # Lọc DataFrame để chỉ hiển thị các dòng có investorType là 'WOLF' hoặc 'SHARK'
+        df_filtered = df[df['investorType'].isin(['WOLF', 'SHARK'])]
+        selected_columns = ['ticker', 'time', 'investorType', 'orderType', 'volume', 'averagePrice']
+        df_selected = df_filtered[selected_columns]
+
+        # Tạo HTML cho bảng, thêm class và style vào từng hàng và cột
+        table_html = '<div class="card card-body border-0 shadow table-wrapper table-responsive">'
+        table_html += '<table class="table table-hover">'
+        table_html += '<thead><tr>'
+        for col in df_selected.columns:
+            table_html += f'<th class="border-gray-200">{col}</th>'
+        table_html += '</tr></thead>'
+        table_html += '<tbody>'
+
+        # Sử dụng Pandas để tạo HTML table với định dạng và class
+        def get_row_class(row):
+            return 'fw-bold' if row['investorType'] == 'SHARK' else ''
+
+        def get_order_class(order_type):
+            if order_type == 'Sell Down':
+                return 'text-danger'
+            elif order_type == 'Buy Up':
+                return 'text-success'
+            return ''
+
+        for index, row in df_selected.iterrows():
+            row_class = get_row_class(row)
+            table_html += f'<tr class="{row_class}">'
+            for col, value in row.items():
+                if col == 'orderType':
+                    order_class = get_order_class(value)
+                    table_html += f'<td class="{order_class}">{value}</td>'
+                else:
+                    table_html += f'<td>{value}</td>'
+            table_html += '</tr>'
+
+        table_html += '</tbody></table>'
+        table_html += '</div>'
+
+        return render_template('intraday_data.html', tables=table_html, symbol=symbol)
+
+    return render_template('intraday_data.html')
 
 if __name__ == '__main__':
     with app.app_context():
