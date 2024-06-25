@@ -169,8 +169,15 @@ def intraday_data():
 
         # Lọc DataFrame để chỉ hiển thị các dòng có investorType là 'WOLF' hoặc 'SHARK'
         df_filtered = df[df['investorType'].isin(['WOLF', 'SHARK'])]
-        selected_columns = ['ticker', 'time', 'investorType', 'orderType', 'volume', 'averagePrice']
+        # Thêm cột Price
+        df_filtered['Total'] = df_filtered['volume'] * df_filtered['averagePrice']
+
+        selected_columns = ['ticker', 'time', 'investorType', 'orderType', 'volume', 'averagePrice','Total']
         df_selected = df_filtered[selected_columns]
+        # Định dạng các số trong các cột volume, averagePrice, và Price
+        df_selected['volume'] = df_selected['volume'].apply(lambda x: "{:,.0f}".format(x).replace(",", "."))
+        df_selected['averagePrice'] = df_selected['averagePrice'].apply(lambda x: "{:,.0f}".format(x).replace(",", "."))
+        df_selected['Total'] = df_selected['Total'].apply(lambda x: "{:,.0f}".format(x).replace(",", "."))
 
         # Tạo HTML cho bảng, thêm class và style vào từng hàng và cột
         table_html = '<div class="card card-body border-0 shadow table-wrapper table-responsive">'
