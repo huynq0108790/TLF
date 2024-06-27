@@ -11,8 +11,9 @@
         </form>
 
     </div>
-    <h6>Cá mập: (CM - SHARK)  Giá trị 1 lệnh đặt > 1 tỷ đồng/lệnh đặt.</h6>
-    <h6>Sói: (SG - WOLF) Giá trị 1 lệnh đặt từ 200 tr đến 1 tỷ đồng/lệnh đặt.</h6>
+    {%if summary_html %}
+        {{ summary_html | safe }}
+    {% endif %}
     {% if tables %}
         {{ tables|safe }}
     {% endif %}

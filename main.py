@@ -169,17 +169,58 @@ def intraday_data():
 
         # Lọc DataFrame để chỉ hiển thị các dòng có investorType là 'WOLF' hoặc 'SHARK'
         df_filtered = df[df['investorType'].isin(['WOLF', 'SHARK'])]
-        # Thêm cột Price
+        # Thêm cột Total
         df_filtered['Total'] = df_filtered['volume'] * df_filtered['averagePrice']
 
-        selected_columns = ['ticker', 'time', 'investorType', 'orderType', 'volume', 'averagePrice','Total']
+        # Tạo bảng thống kê số lượng giao dịch và tổng giá trị giao dịch
+        summary_df = df_filtered.groupby(['investorType', 'orderType']).agg(
+            trade_count=('orderType', 'size'),
+            total_value=('Total', 'sum')
+        ).reset_index()
+
+        # Tạo bảng pivot để hiển thị theo định dạng yêu cầu
+        pivot_df = summary_df.pivot(index='investorType', columns='orderType', values=['trade_count', 'total_value']).fillna(0)
+        pivot_df.columns = [f'{i}_{j}' for i, j in pivot_df.columns]
+        pivot_df = pivot_df.reset_index()
+
+        # Định dạng lại các cột giá trị tổng
+        pivot_df['total_value_Buy Up'] = pivot_df['total_value_Buy Up'].apply(lambda x: "{:,.0f}".format(x).replace(",", "."))
+        pivot_df['total_value_Sell Down'] = pivot_df['total_value_Sell Down'].apply(lambda x: "{:,.0f}".format(x).replace(",", "."))
+
+        # Tạo HTML cho bảng thống kê
+        summary_html = '<div class="card card-body border-0 shadow table-wrapper table-responsive">'
+        summary_html += '<table class="table table-hover">'
+        summary_html += '<thead><tr>'
+        summary_html += '<th class="border-gray-200">INVESTORTYPE</th>'
+        summary_html += '<th class="border-gray-200">COUNT BUY</th>'
+        summary_html += '<th class="border-gray-200">VALUE BUY</th>'
+        summary_html += '<th class="border-gray-200">COUNT SELL</th>'
+        summary_html += '<th class="border-gray-200">VALUE SELL</th>'
+        summary_html += '</tr></thead>'
+        summary_html += '<tbody>'
+
+        for index, row in pivot_df.iterrows():
+            summary_html += '<tr>'
+            summary_html += f'<td>{row["investorType"]}</td>'
+            summary_html += f'<td>{int(row["trade_count_Buy Up"])}</td>'
+            summary_html += f'<td>{row["total_value_Buy Up"]}</td>'
+            summary_html += f'<td>{int(row["trade_count_Sell Down"])}</td>'
+            summary_html += f'<td>{row["total_value_Sell Down"]}</td>'
+            summary_html += '</tr>'
+
+        summary_html += '</tbody></table>'
+        summary_html += '</div>'
+
+        # Lọc cột cần thiết cho bảng chính
+        selected_columns = ['ticker', 'time', 'investorType', 'orderType', 'volume', 'averagePrice', 'Total']
         df_selected = df_filtered[selected_columns]
-        # Định dạng các số trong các cột volume, averagePrice, và Price
+
+        # Định dạng các số trong các cột volume, averagePrice, và Total
         df_selected['volume'] = df_selected['volume'].apply(lambda x: "{:,.0f}".format(x).replace(",", "."))
         df_selected['averagePrice'] = df_selected['averagePrice'].apply(lambda x: "{:,.0f}".format(x).replace(",", "."))
         df_selected['Total'] = df_selected['Total'].apply(lambda x: "{:,.0f}".format(x).replace(",", "."))
 
-        # Tạo HTML cho bảng, thêm class và style vào từng hàng và cột
+        # Tạo HTML cho bảng chính
         table_html = '<div class="card card-body border-0 shadow table-wrapper table-responsive">'
         table_html += '<table class="table table-hover">'
         table_html += '<thead><tr>'
@@ -213,9 +254,11 @@ def intraday_data():
         table_html += '</tbody></table>'
         table_html += '</div>'
 
-        return render_template('intraday_data.html', tables=table_html, symbol=symbol)
+        return render_template('intraday_data.html', tables=table_html, symbol=symbol,
+                               summary_html=summary_html)
 
     return render_template('intraday_data.html')
+
 
 if __name__ == '__main__':
     with app.app_context():
